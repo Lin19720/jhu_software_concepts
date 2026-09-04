@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bio-container">
+    <div class="bio-text">
+        <h1>Lin Gu</h1>
+        <h3>Graduate Student at Johns Hopkins University</h3>
+        <p>
+            I am a graduate student at Johns Hopkins University. I consider myself a little bit introverted, 
+            and through my academic journey, I hope I will become more open-minded and continue to grow both personally and professionally.
+        </p>
+    </div>
+    <div class="bio-image">
+        <img src="{{ url_for('static', filename='images/profile.jpg') }}" alt="Lin Gu Profile Picture">
+    </div>
+</div>
+{% endblock %}
