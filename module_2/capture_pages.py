@@ -1,40 +1,63 @@
 import os
 import time
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-def capture_gradcafe_pages(start_page: int = 1, total_pages: int = 2500, output_dir: str = "html_dumps"):
+def capture_gradcafe_pages(total_pages: int = 1200, output_dir: str = "html_dumps"):
     os.makedirs(output_dir, exist_ok=True)
-    options = Options()
-    options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
     
-    try:
-        driver = webdriver.Chrome(options=options)
-        print(f"[INFO] 已成功连接至 Chrome 调试会话！准备抓取至第 {total_pages} 页...")
-    except Exception as e:
-        print(f"[错误] 无法连接到 Chrome，请先重新启动 Chrome 调试端口:\n{e}")
-        return
+    options = webdriver.ChromeOptions()
+    # 模拟真实浏览器参数
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    driver = webdriver.Chrome(options=options)
 
-    for page in range(start_page, start_page + total_pages):
-        target_file = os.path.join(output_dir, f"page_{page}.html")
-        
-        # 断点续传：自动跳过已经下载好的页面
-        if os.path.exists(target_file) and os.path.getsize(target_file) > 1000:
-            continue
-            
-        url = f"https://www.thegradcafe.com/survey/?p={page}"
-        try:
-            driver.get(url)
-            time.sleep(0.5) # 稍微增加等待时间，减少浏览器压力
-            
+    try:
+        # 打开 Grad Cafe 首页
+        print("[INFO] 正在打开 Grad Café 主页...")
+        driver.get("https://www.thegradcafe.com/survey/")
+        time.sleep(3)
+
+        for page in range(1, total_pages + 1):
+            target_file = os.path.join(output_dir, f"page_{page}.html")
+
+            # 等待表格渲染成功
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.TAG_NAME, "tr"))
+            )
+            time.sleep(1)
+
+            # 保存当前页面的源码
+            page_content = driver.page_source
             with open(target_file, "w", encoding="utf-8") as f:
-                f.write(driver.page_source)
+                f.write(page_content)
                 f.flush()
+
+            print(f"[成功] 保存第 {page}/{total_pages} 页 -> {target_file} ({len(page_content)} bytes)")
+
+            # 尝试点击 "Next" 或 ">" 分页按钮
+            try:
+                # 寻找包含 next / > 的分页按钮
+                next_buttons = driver.find_elements(By.XPATH, "//a[contains(text(), 'Next') or contains(text(), '›') or contains(@aria-label, 'Next')]")
+                if not next_buttons:
+                    next_buttons = driver.find_elements(By.CSS_SELECTOR, "ul.pagination li:last-child a")
                 
-            print(f"[成功] 已保存第 {page} 页 -> {target_file}")
-        except Exception as e:
-            print(f"[警告] 第 {page} 页抓取异常，等待 3 秒后重试... 错误: {e}")
-            time.sleep(3)
+                if next_buttons and next_buttons[0].is_enabled():
+                    # 滚动到按钮位置并点击
+                    driver.execute_script("arguments[0].scrollIntoView(true);", next_buttons[0])
+                    time.sleep(0.5)
+                    driver.execute_script("arguments[0].click();", next_buttons[0])
+                    time.sleep(1.5)  # 等待 AJAX 加载新数据
+                else:
+                    print("[提示] 已经到达最后一页，停止抓取。")
+                    break
+            except Exception as e:
+                print(f"[警告] 点击下一页失败: {e}，正在尝试刷新后继续...")
+                time.sleep(2)
+
+    finally:
+        driver.quit()
 
 if __name__ == "__main__":
-    capture_gradcafe_pages(start_page=1, total_pages=2500)
+    capture_gradcafe_pages(total_pages=1200)
