@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grad School Cafe Data Analysis</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333333;
+            margin: 0;
+            padding: 20px 40px;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 15px;
+        }
+        .header-subtitle {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 5px;
+        }
+        h1 {
+            font-size: 28px;
+            color: #1a1a1a;
+            margin: 0;
+        }
+        hr {
+            border: 0;
+            border-top: 2px solid #333333;
+            margin-bottom: 25px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .pull-section {
+            background: #eef6ff;
+            border: 1px solid #b8daff;
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 25px;
+        }
+        .pull-desc {
+            font-size: 14px;
+            color: #004085;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .btn-action {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 9px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+        .btn-action:hover {
+            background-color: #004085;
+        }
+        .btn-update {
+            background-color: #28a745;
+        }
+        .btn-update:hover {
+            background-color: #1e7e34;
+        }
+        .status-msg {
+            margin-top: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+        }
+        .msg-success { color: #28a745; }
+        .msg-warning { color: #856404; }
+        .card {
+            background: #ffffff;
+            border-radius: 6px;
+            padding: 18px 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid #0056b3;
+        }
+        .question {
+            font-weight: 600;
+            font-size: 16px;
+            color: #111111;
+            margin-bottom: 8px;
+        }
+        .answer {
+            font-style: italic;
+            color: #444444;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-subtitle">Grad School Cafe Data Analysis</div>
+        <div class="header-container">
+            <h1>Analysis</h1>
+            <!-- Part 10: Update Analysis Button at top-right -->
+            <form action="/update_analysis" method="POST" style="margin: 0;">
+                <button type="submit" class="btn-action btn-update">Update Analysis</button>
+            </form>
+        </div>
+        <hr>
+
+        <!-- Part 9: Pull Data Section -->
+        <div class="pull-section">
+            <div class="pull-desc">
+                Pull Data checks Grad Café for newly submitted application results and adds new records to the database. 
+                Depending on the amount of new data available, this may take some time.
+            </div>
+            <form action="/pull_data" method="POST">
+                <button type="submit" class="btn-action">Pull Data</button>
+            </form>
+            {% if message %}
+            <div class="status-msg {% if 'running' in message or 'retrieved' in message %}msg-warning{% else %}msg-success{% endif %}">
+                {{ message }}
+            </div>
+            {% endif %}
+        </div>
+
+        {% for item in results %}
+        <div class="card">
+            <div class="question">{{ item.question }}</div>
+            <div class="answer">Answer: {{ item.answer }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

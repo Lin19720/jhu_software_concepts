@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>query_data &mdash; GradCafe Application 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            GradCafe Application
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview &amp; Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GradCafe Application</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">query_data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for query_data</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
+
+<div class="viewcode-block" id="run_queries">
+<a class="viewcode-back" href="../api.html#query_data.run_queries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_queries</span><span class="p">():</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">"gradcafe.db"</span><span class="p">)</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"==================== DATA ANALYSIS RESULTS ====================</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 1: Fall 2026 申请人数</span>
+    <span class="n">q1_sql</span> <span class="o">=</span> <span class="s2">"SELECT COUNT(*) FROM applicants WHERE term_and_year LIKE '</span><span class="si">%F</span><span class="s2">all 2026%' OR raw_program_text LIKE '</span><span class="si">%F</span><span class="s2">all 2026%';"</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q1_sql</span><span class="p">)</span>
+    <span class="n">q1_count</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Question 1:</span><span class="se">\n</span><span class="s2">Fall 2026 applicant count: </span><span class="si">{</span><span class="n">q1_count</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 2: 国际生比例</span>
+    <span class="n">q2_sql</span> <span class="o">=</span> <span class="s2">"SELECT (COUNT(CASE WHEN raw_program_text LIKE '%International%' OR student_type LIKE '%International%' THEN 1 END) * 100.0 / COUNT(*)) FROM applicants;"</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q2_sql</span><span class="p">)</span>
+    <span class="n">q2_pct</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Question 2:</span><span class="se">\n</span><span class="s2">Percent international: </span><span class="si">{</span><span class="n">q2_pct</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%</span><span class="se">\n</span><span class="s2">"</span> <span class="k">if</span> <span class="n">q2_pct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"Question 2:</span><span class="se">\n</span><span class="s2">Percent international: N/A</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 3: 整体平均成绩</span>
+    <span class="n">q3_sql</span> <span class="o">=</span> <span class="s2">"SELECT AVG(gpa), AVG(gre), AVG(gre_v), AVG(gre_aw) FROM applicants;"</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q3_sql</span><span class="p">)</span>
+    <span class="n">avg_gpa</span><span class="p">,</span> <span class="n">avg_gre</span><span class="p">,</span> <span class="n">avg_gre_v</span><span class="p">,</span> <span class="n">avg_gre_aw</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Question 3:"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average GPA: </span><span class="si">{</span><span class="n">avg_gpa</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">avg_gpa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"Average GPA: N/A"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average GRE Quantitative: </span><span class="si">{</span><span class="n">avg_gre</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">avg_gre</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"Average GRE Quantitative: N/A"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average GRE Verbal: </span><span class="si">{</span><span class="n">avg_gre_v</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">avg_gre_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"Average GRE Verbal: N/A"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average GRE Analytical Writing: </span><span class="si">{</span><span class="n">avg_gre_aw</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span> <span class="k">if</span> <span class="n">avg_gre_aw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"Average GRE Analytical Writing: N/A</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 4: 美国本土学生 GPA</span>
+    <span class="n">q4_sql</span> <span class="o">=</span> <span class="s2">"SELECT AVG(gpa) FROM applicants WHERE student_type = 'American' AND gpa IS NOT NULL;"</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q4_sql</span><span class="p">)</span>
+    <span class="n">q4_gpa</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Question 4:</span><span class="se">\n</span><span class="s2">Average GPA: </span><span class="si">{</span><span class="n">q4_gpa</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span> <span class="k">if</span> <span class="n">q4_gpa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"Question 4:</span><span class="se">\n</span><span class="s2">Average GPA: N/A</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 5: Fall 2025 录取率</span>
+    <span class="n">q5_sql</span> <span class="o">=</span> <span class="s2">"SELECT (COUNT(CASE WHEN applicant_status LIKE '%Accepted%' THEN 1 END) * 100.0 / COUNT(*)) FROM applicants WHERE term_and_year LIKE '</span><span class="si">%F</span><span class="s2">all 2025%' OR raw_program_text LIKE '</span><span class="si">%F</span><span class="s2">all 2025%';"</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q5_sql</span><span class="p">)</span>
+    <span class="n">q5_pct</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Question 5:</span><span class="se">\n</span><span class="s2">Fall 2025 acceptance percentage: </span><span class="si">{</span><span class="n">q5_pct</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%</span><span class="se">\n</span><span class="s2">"</span> <span class="k">if</span> <span class="n">q5_pct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"Question 5:</span><span class="se">\n</span><span class="s2">Fall 2025 acceptance percentage: N/A</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 6: Fall 2025 被录取学生 GPA</span>
+    <span class="n">q6_sql</span> <span class="o">=</span> <span class="s2">"SELECT AVG(gpa) FROM applicants WHERE (term_and_year LIKE '</span><span class="si">%F</span><span class="s2">all 2025%' OR raw_program_text LIKE '</span><span class="si">%F</span><span class="s2">all 2025%') AND applicant_status LIKE '%Accepted%' AND gpa IS NOT NULL;"</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q6_sql</span><span class="p">)</span>
+    <span class="n">q6_gpa</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Question 6:</span><span class="se">\n</span><span class="s2">Average GPA: </span><span class="si">{</span><span class="n">q6_gpa</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span> <span class="k">if</span> <span class="n">q6_gpa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"Question 6:</span><span class="se">\n</span><span class="s2">Average GPA: N/A</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 7: JHU CS Master 申请人数</span>
+    <span class="n">q7_sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">    SELECT COUNT(*) </span>
+<span class="s2">    FROM applicants </span>
+<span class="s2">    WHERE (university LIKE '%Johns Hopkins%' OR university LIKE '%JHU%' OR raw_program_text LIKE '%Johns Hopkins%' OR raw_program_text LIKE '%JHU%') </span>
+<span class="s2">      AND (program_name LIKE '%Computer Science%' OR raw_program_text LIKE '%Computer Science%' OR raw_program_text LIKE '%CS%')</span>
+<span class="s2">      AND (degree_type LIKE '%Master%' OR degree_type LIKE '%MS%' OR raw_program_text LIKE '%Master%' OR raw_program_text LIKE '%MS%');</span>
+<span class="s2">    """</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q7_sql</span><span class="p">)</span>
+    <span class="n">q7_count</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Question 7:</span><span class="se">\n</span><span class="s2">JHU CS Master's applicant count: </span><span class="si">{</span><span class="n">q7_count</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 8</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Question 8:</span><span class="se">\n</span><span class="s2">Original-field count: </span><span class="si">{</span><span class="n">q7_count</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 9</span>
+    <span class="n">q9_sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">    SELECT COUNT(*) </span>
+<span class="s2">    FROM applicants </span>
+<span class="s2">    WHERE (llm_generated_university LIKE '%Johns Hopkins%' OR university LIKE '%Johns Hopkins%' OR university LIKE '%JHU%' OR raw_program_text LIKE '%Johns Hopkins%' OR raw_program_text LIKE '%JHU%') </span>
+<span class="s2">      AND (llm_generated_program LIKE '%Computer Science%' OR program_name LIKE '%Computer Science%' OR raw_program_text LIKE '%Computer Science%' OR raw_program_text LIKE '%CS%')</span>
+<span class="s2">      AND (degree_type LIKE '%Master%' OR degree_type LIKE '%MS%' OR raw_program_text LIKE '%Master%' OR raw_program_text LIKE '%MS%');</span>
+<span class="s2">    """</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q9_sql</span><span class="p">)</span>
+    <span class="n">llm_count</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">llm_count</span> <span class="o">-</span> <span class="n">q7_count</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Question 9:"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Original-field count: </span><span class="si">{</span><span class="n">q7_count</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"LLM-field count: </span><span class="si">{</span><span class="n">llm_count</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Difference: </span><span class="si">{</span><span class="n">diff</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># Question 10: Masters vs PhD Applicant Comparison</span>
+    <span class="n">q10_sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">    SELECT </span>
+<span class="s2">        CASE </span>
+<span class="s2">            WHEN raw_program_text LIKE '%PhD%' OR degree_type LIKE '%PhD%' THEN 'PhD'</span>
+<span class="s2">            ELSE 'Masters'</span>
+<span class="s2">        END AS degree_category,</span>
+<span class="s2">        COUNT(*) AS total_count,</span>
+<span class="s2">        ROUND(AVG(gpa), 2) AS avg_gpa</span>
+<span class="s2">    FROM applicants</span>
+<span class="s2">    GROUP BY degree_category;</span>
+<span class="s2">    """</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q10_sql</span><span class="p">)</span>
+    <span class="n">deg_stats</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Question 10:</span><span class="se">\n</span><span class="s2">Degree Type Applicant Count &amp; Average GPA:"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">deg</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">gpa</span> <span class="ow">in</span> <span class="n">deg_stats</span><span class="p">:</span>
+        <span class="n">gpa_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">gpa</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">gpa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"N/A"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - </span><span class="si">{</span><span class="n">deg</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> applicants (Avg GPA: </span><span class="si">{</span><span class="n">gpa_str</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+    <span class="c1"># Question 11: High GRE Quant (&gt;=165) vs Lower GRE Acceptance Rate Comparison</span>
+    <span class="n">q11_sql</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">    SELECT </span>
+<span class="s2">        CASE </span>
+<span class="s2">            WHEN gre &gt;= 165 THEN 'High Quant (&gt;=165)'</span>
+<span class="s2">            ELSE 'Lower Quant (&lt;165)'</span>
+<span class="s2">        END AS gre_bracket,</span>
+<span class="s2">        COUNT(*) AS total_applicants,</span>
+<span class="s2">        COUNT(CASE WHEN applicant_status LIKE '%Accepted%' THEN 1 END) AS accepted_count,</span>
+<span class="s2">        ROUND(COUNT(CASE WHEN applicant_status LIKE '%Accepted%' THEN 1 END) * 100.0 / COUNT(*), 2) AS acceptance_rate</span>
+<span class="s2">    FROM applicants</span>
+<span class="s2">    WHERE gre IS NOT NULL AND gre BETWEEN 130 AND 170</span>
+<span class="s2">    GROUP BY gre_bracket;</span>
+<span class="s2">    """</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q11_sql</span><span class="p">)</span>
+    <span class="n">gre_stats</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Question 11:</span><span class="se">\n</span><span class="s2">Acceptance Rate Comparison by GRE Quant Score (&gt;=165 vs &lt;165):"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">bracket</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">rate</span> <span class="ow">in</span> <span class="n">gre_stats</span><span class="p">:</span>
+        <span class="n">rate_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">rate</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span> <span class="k">if</span> <span class="n">rate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"N/A"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - </span><span class="si">{</span><span class="n">bracket</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">rate_str</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">acc</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> accepted)"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+    <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">run_queries</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Student.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
